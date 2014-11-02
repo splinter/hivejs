@@ -42,6 +42,22 @@ SOFTWARE.
         form.fields[key].isSubmitReady = true;
     };
     /**
+     * Recursively travels through all elements inside a form
+     * and processes any elements that are marked for management 
+     * @param  Object element The root element to begin the inspection
+     * @param  Object form    The form in which the element is found
+     */
+    var recursiveInspectFields = function(element, form) {
+        if ($(element).children().length == 0) {
+            inspectPageFormFields(element, form)
+            return;
+        } else {
+            $(element).children().each(function() {
+                inspectPageFormFields(this, form);
+            });
+        }
+    };
+    /**
      * Obtains all of the meta data for a given field
      * @param  Object element An HTML element
      * @param  Object form    The meta information of the form in which the field is located
@@ -82,8 +98,10 @@ SOFTWARE.
             var that = this;
             //Locate all elements within the  form element
             $(this).children().each(function() {
-                inspectPageFormFields(this, managedForms[that.id]);
+                //inspectPageFormFields(this, managedForms[that.id]);
+                recursiveInspectFields(this, managedForms[that.id]);
             });
+            //recursiveInspectFields(this,managedForms[that.id]);
         });
     };
     /**

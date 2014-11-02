@@ -18,17 +18,22 @@
     </head>
     <body>
         <form id='myForm1' data-hived='true' data-plugins='formStatusBar,ajaxController' role='form'>
-            <label>Name:</label>
-            <input type='text' name='overview_name' data-hived='true'
-            data-plugins='mandatoryFieldValidator'
-            data-manadatory='true'/>
-            <label>Description</label>
-            <input type='textarea' name='overview_description' data-hived='true'/>
-            <input type='submit' />
+            <div role='form-group'>
+                <label for="name">Name:</label>
+                <input type='text' id="overview_name" name='overview_name' class='form-control'
+                data-hived='true'
+                data-plugins='mandatoryFieldValidator'
+                data-manadatory='true'/>
+            </div>
+            <div role='form-group'>
+                <label>Description</label>
+                <input type='textarea' name='overview_description' class='form-control' data-hived='true'/>
+            </div>
+            <input type='submit' class='btn btn-default' />
         </form>
         <!--         <form id='myForm2'>
-                        <input type='text' name='overview_name'/>
-                        <input type='textarea' name='overview_description' />
+                                                                                    <input type='text' name='overview_name'/>
+                                                                                    <input type='textarea' name='overview_description' />
         </form> -->
         <!-- build:js(.) scripts/vendor.js -->
         <!-- bower:js -->
