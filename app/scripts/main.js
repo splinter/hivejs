@@ -1,3 +1,2 @@
-console.log('\'Allo \'Allo!');
-
 hive.init();
+hive.start('myForm1');

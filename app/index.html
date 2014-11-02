@@ -17,9 +17,13 @@
         <!-- endbuild -->
     </head>
     <body>
-        <form id='myForm1'>
-            <input type='text' name='overview_name'/>
-            <input type='textarea' name='overview_description' />
+        <form id='myForm1' data-hived='true' data-plugins='testListener'>
+          <label>Name:</label>
+            <input type='text' name='overview_name' data-hived='true' 
+              data-plugins='testEmitter,testListener,mandatoryFieldValidation,fieldNotifications' 
+              data-manadatory='true'/>
+            <label>Description</label>
+            <input type='textarea' name='overview_description' data-hived='true' data-plugins='testEmitter,testListener' />
         </form>
         <form id='myForm2'>
             <input type='text' name='overview_name'/>
@@ -46,6 +50,7 @@
         <!-- endbuild -->
         <!-- build:js({app,.tmp}) scripts/main.js -->
         <script src="scripts/hive.js"></script>
+        <script src="scripts/common_hive_plugins.js"></script>
         <script src="scripts/main.js"></script>
         <!-- endbuild -->
     </body>
