@@ -48,6 +48,7 @@ SOFTWARE.
         form.fields[key].id = key;
         form.fields[key].name = element.name;
         form.fields[key].plugins = processPluginList(meta.plugins); //data.plugins.split(',');;
+        form.fields[key].isSubmitReady =true;
     };
     /**
      * Locates and builds a map of all the forms in the page using jquery
@@ -217,7 +218,8 @@ SOFTWARE.
         eventFormSubmitted: 'form.submit',
         eventFormSubmitSuccess: 'form.submit.success',
         eventFormSubmitFailure: 'form.submit.failure',
-        eventFormValidationFailure: 'form.validation.failure'
+        eventFormValidationFailure: 'form.validation.failure',
+        eventFieldSubmitReadyFalse:'field.submit.notready'
     };
     window.hive = hive;
 }(jQuery, window));

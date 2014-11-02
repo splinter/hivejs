@@ -1,42 +1,43 @@
+'use strict';
 (function(hive) {
-    function TestListener(configs) {
-    	console.log('testListener initialized with '+JSON.stringify(configs));
-    }
-    TestListener.prototype.load = function(comp) {
-        comp.hub.sub('textEntered', function(data) {
-            console.log('Text entered ' + data.id);
+    /**
+     * Checks if all fields can be submitted
+     */
+    function AjaxController() {}
+    AjaxController.prototype.load = function(component) {
+        var fields = component.fields || {};
+        var field;
+        $(component.el).submit(function(ev) {
+            ev.preventDefault();
+            alert('Form submit event called!');
+            for (var fieldKey in fields) {
+                field = fields[fieldKey];
+                if (!field.isSubmitReady) {
+                    field.hub.pub(hive.events.eventFieldSubmitReadyFalse);
+                    component.hub.pub(hive.events.eventFieldSubmitReadyFalse, field);
+                }
+            }
         });
     };
-    TestListener.prototype.unload = function(comp) {};
-
-    function TestEmitter() {}
-    TestEmitter.prototype.load = function(comp) {
-        $(comp.el).on('click', function() {
-            //comp.hub.pub('textEntered', comp);
-        });
-    };
-    TestEmitter.prototype.unload = function(comp) {};
 
     function MandatoryFieldValidator() {}
-    MandatoryFieldValidator.prototype.load = function(comp) {
-    	$(comp.el).change(function(){
-    		alert('Text changed');
-    	})
+    MandatoryFieldValidator.prototype.load = function(component) {
+        var value = $(component.el).val();
+        if (value === '') {
+            component.isSubmitReady = false;
+        }
+        $(component.el).change(function() {
+            console.log('Value: ' + $(this).val());
+        });
     };
-    MandatoryFieldValidator.prototype.unload = function(comp) {};
- 	function FieldNotifications(){
 
- 	}
- 	FieldNotifications.prototype.load = function(comp){
- 		comp.hub.sub('validation.failed',function(){
- 			alert('The value entered for the field is invalid');
- 		});
- 		comp.hub.sub('validation.success',function(){
- 			alert('Yay!');
- 		});
- 	};
-    hive.plugin('testListener', TestListener);
-    hive.plugin('testEmitter', TestEmitter);
-    hive.plugin('mandatoryFieldValidation',MandatoryFieldValidator);
-    hive.plugin('fieldNotifications',FieldNotifications);
+    function FormStatusBar() {}
+    FormStatusBar.prototype.load = function(component) {
+        component.hub.sub(hive.events.eventFieldSubmitReadyFalse, function() {
+            $(component.el).append('<div class="alert alert-success">One or more mandatory fields have not been filled in!</div>');
+        });
+    };
+    hive.plugin('ajaxController', AjaxController);
+    hive.plugin('mandatoryFieldValidator', MandatoryFieldValidator);
+    hive.plugin('formStatusBar', FormStatusBar);
 }(hive));
