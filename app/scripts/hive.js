@@ -1,4 +1,29 @@
+/**
+The MIT License (MIT)
+
+Copyright (c) [year] [fullname]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+ */
+
 'use strict';
+
 (function($, window) {
     var hive = {};
     var managedForms = {};
@@ -6,8 +31,8 @@
     var HIVE_MANAGED_KEY = 'hived';
     /**
      * Obtains all of the meta data for a given field
-     * @param  Object element [description]
-     * @param  Object form    [description]
+     * @param  Object element An HTML element
+     * @param  Object form    The meta information of the form in which the field is located
      */
     var inspectPageFormFields = function(element, form) {
         var meta = $(element).data() || {};
@@ -47,6 +72,11 @@
             });
         });
     };
+    /**
+     * Returns the plugin implementation given the name of the plugin
+     * @param  String pluginName The name of the plugin
+     * @return Function            The plugin implementation
+     */
     var getPlugin = function(pluginName) {
         if (!pluginMap.hasOwnProperty(pluginName)) {
             return null;
@@ -56,41 +86,51 @@
     /**
      * Returns the configuration elements for a given component(A field or form element)
      * The configuration should be specified as data-pluginName.
-     * @param  String pluginName [description]
-     * @param  Object component  [description]
+     * @param  Object component  The component for which the plugin instance is instatiated
      * @return Object            A configuration JSON object
      */
-    var getPluginConfigs = function(pluginName, component) {
-        var meta = component.meta||{};
+    var getPluginConfigs = function(component) {
+        var meta = component.meta || {};
         return meta;
-    }
+    };
+    /**
+     * Builds a map of the plugins by plugin name given a comma seperated
+     * list of plugins
+     * @param  String list The list of plugins to be instaniated
+     * @return object 	A JSON object indicating the plugins specified by the list
+     */
     var processPluginList = function(list) {
         var plugins = {};
         var pluginKey;
         var pluginNames;
+        var defaultPluginImpl = {
+            load: function() {},
+            unload: function() {}
+        };
         //Ensure a plugin list has been provided
         if (typeof list !== 'string') {
             return plugins;
         }
         pluginNames = list.split(',');
-        pluginKey;
         for (var index in pluginNames) {
             pluginKey = pluginNames[index];
             //A default implementation so that null checks do not need
             //to be performed
-            plugins[pluginKey] = {
-                load: function() {},
-                unload: function() {}
-            };
+            plugins[pluginKey] = defaultPluginImpl;
         }
         return plugins;
     };
+    /**
+     * Creates concrete instances of the plugins of a component.The plugins
+     * property of the component is inspected and used to locate the plugins to be
+     * instantiated
+     * @param  Object component A form component
+     */
     var loadComponentPlugins = function(component) {
         //Obtain the plugins
         var plugins = component.plugins;
-        var pluginName;
         var PluginClass;
-        var configs = {}
+        var configs = {};
         for (var pluginKey in plugins) {
             //pluginName = plugins[pluginIndex];
             PluginClass = getPlugin(pluginKey);
@@ -143,13 +183,11 @@
      * @param  Object|Array formList The form or forms that should be started
      */
     hive.start = function(formList) {
-        var formList = (typeof formList === 'string') ? [formList] : formList;
+        formList = (typeof formList === 'string') ? [formList] : formList;
         var form;
         var formKey;
         var field;
         var fields;
-        var PluginClass;
-        var pluginKey;
         for (var index in formList) {
             formKey = formList[index];
             form = managedForms[formKey];
@@ -172,14 +210,14 @@
     };
     hive.events = {
         eventPluginLoaded: 'event.plugin.loaded',
-        eventFieldValidationSuccess:'field.validation.success',
-        eventFieldValidationFailure:'field.validation.fail',
-        eventFieldContentEmpty:'field.content.empty',
-        eventFieldContentChanged:'field.content.changed',
-        eventFormSubmitted:'form.submit',
-        eventFormSubmitSuccess:'form.submit.success',
-        eventFormSubmitFailure:'form.submit.failure',
-        eventFormValidationFailure:'form.validation.failure'
+        eventFieldValidationSuccess: 'field.validation.success',
+        eventFieldValidationFailure: 'field.validation.fail',
+        eventFieldContentEmpty: 'field.content.empty',
+        eventFieldContentChanged: 'field.content.changed',
+        eventFormSubmitted: 'form.submit',
+        eventFormSubmitSuccess: 'form.submit.success',
+        eventFormSubmitFailure: 'form.submit.failure',
+        eventFormValidationFailure: 'form.validation.failure'
     };
     window.hive = hive;
 }(jQuery, window));
