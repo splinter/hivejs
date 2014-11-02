@@ -21,14 +21,26 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
  */
-
 'use strict';
-
 (function($, window) {
     var hive = {};
     var managedForms = {};
     var pluginMap = {};
     var HIVE_MANAGED_KEY = 'hived';
+    var addField = function(element, form, plugins, meta) {
+        var pluginList = plugins || '';
+        var metaData = meta || {};
+        var key = element.id ? element.id : element.name;
+        form.fields[key] = {};
+        form.fields[key].hub = new EventAggregator();
+        form.fields[key].meta = metaData;
+        form.fields[key].el = element;
+        form.fields[key].parent = form;
+        form.fields[key].id = key;
+        form.fields[key].name = element.name;
+        form.fields[key].plugins = processPluginList(pluginList);
+        form.fields[key].isSubmitReady = true;
+    };
     /**
      * Obtains all of the meta data for a given field
      * @param  Object element An HTML element
@@ -40,6 +52,7 @@ SOFTWARE.
         if ((!meta.hasOwnProperty(HIVE_MANAGED_KEY)) || (meta[HIVE_MANAGED_KEY] === false)) {
             return;
         }
+        //TODO: Replace this code block with the addField method
         form.fields[key] = {};
         form.fields[key].hub = new EventAggregator();
         form.fields[key].meta = meta;
@@ -48,7 +61,7 @@ SOFTWARE.
         form.fields[key].id = key;
         form.fields[key].name = element.name;
         form.fields[key].plugins = processPluginList(meta.plugins); //data.plugins.split(',');;
-        form.fields[key].isSubmitReady =true;
+        form.fields[key].isSubmitReady = true;
     };
     /**
      * Locates and builds a map of all the forms in the page using jquery
@@ -95,6 +108,16 @@ SOFTWARE.
         return meta;
     };
     /**
+     * Provides a way to add new hived components to a form
+     * @param {[type]} element [description]
+     * @param {[type]} plugins [description]
+     * @param {[type]} meta    [description]
+     */
+    var addNewComponent = function(element, plugins, meta) {
+        var parent = this.component.parent;
+        addField(element, parent, plugins, meta);
+    };
+    /**
      * Builds a map of the plugins by plugin name given a comma seperated
      * list of plugins
      * @param  String list The list of plugins to be instaniated
@@ -139,6 +162,8 @@ SOFTWARE.
                 //Obtain any configurations for the plugin
                 configs = getPluginConfigs(pluginKey, component);
                 component.plugins[pluginKey] = new PluginClass(configs);
+                component.plugins[pluginKey].component = component;
+                component.plugins[pluginKey].addNewComponent = addNewComponent;
                 component.plugins[pluginKey].load(component);
             }
         }
@@ -219,7 +244,7 @@ SOFTWARE.
         eventFormSubmitSuccess: 'form.submit.success',
         eventFormSubmitFailure: 'form.submit.failure',
         eventFormValidationFailure: 'form.validation.failure',
-        eventFieldSubmitReadyFalse:'field.submit.notready'
+        eventFieldSubmitReadyFalse: 'field.submit.notready'
     };
     window.hive = hive;
 }(jQuery, window));
